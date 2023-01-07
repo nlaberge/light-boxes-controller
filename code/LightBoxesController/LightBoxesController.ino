@@ -12,6 +12,13 @@
 #include <FastLED.h>
 #include <Wire.h>
 #include <Adafruit_NeoTrellisM4.h>
+#include <Adafruit_PWMServoDriver.h>
+
+// called this way, it uses the default address 0x40
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+#define SERVOMIN  170 // This is the 'minimum' pulse length count (out of 4096), dictates how closed box is
+#define SERVOMAX  300 // This is the 'maximum' pulse length count (out of 4096), dictates how open box is
+#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
 #define FOLLOWER 8
 
@@ -42,6 +49,11 @@ void setup() {
   Serial.begin(9600);  // start serial for output
   trellis.begin();
   trellis.setBrightness(80);
+
+  pwm.begin(); // pwm for servos
+  pwm.setOscillatorFrequency(27000000);
+  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
+  delay(10);
 }
 
 void transmitButtonPress(ButtonPress bp){
@@ -136,6 +148,18 @@ void loop() {
   }
   setRow(ledRow);
   delay(1);
+
+  // Drive each servo one at a time using setPWM()
+  for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
+    pwm.setPWM(0, 0, pulselen);
+  }
+
+  delay(500);
+  for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
+    pwm.setPWM(0, 0, pulselen);
+  }
+  delay(500);
+
 }
 
 unsigned long convertRGBtoHex(int r, int g, int b) {   

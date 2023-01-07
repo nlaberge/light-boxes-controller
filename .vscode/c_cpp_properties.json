@@ -28,7 +28,8 @@
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include/c++/9.2.1/backward",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/lib/gcc/arm-none-eabi/9.2.1/include",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/lib/gcc/arm-none-eabi/9.2.1/include-fixed",
-                "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include"
+                "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include",
+                "/Users/nicklaberge/Dropbox/Mac/Documents/Arduino/libraries/**"
             ],
             "forcedInclude": [
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/hardware/samd/1.7.10/cores/arduino/Arduino.h"
@@ -71,6 +72,7 @@
                 "/Users/nicklaberge/Documents/Arduino/libraries/Adafruit_DMA_neopixel_library",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/hardware/samd/1.7.10/libraries/Adafruit_ZeroDMA",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/hardware/samd/1.7.10/libraries/SPI",
+                "/Users/nicklaberge/Documents/Arduino/libraries/Adafruit_PWM_Servo_Driver_Library",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include/c++/9.2.1",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include/c++/9.2.1/arm-none-eabi",
                 "/Users/nicklaberge/Library/Arduino15/packages/adafruit/tools/arm-none-eabi-gcc/9-2019q4/arm-none-eabi/include/c++/9.2.1/backward",
