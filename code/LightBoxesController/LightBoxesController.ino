@@ -16,7 +16,7 @@
 
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-#define SERVOMIN  170 // This is the 'minimum' pulse length count (out of 4096), dictates how closed box is
+#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096), dictates how closed box is
 #define SERVOMAX  300 // This is the 'maximum' pulse length count (out of 4096), dictates how open box is
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
@@ -41,6 +41,12 @@ struct LedRow
   CRGB col5;
   CRGB col6;
   CRGB col7;
+  uint8_t servo0; //servo values, which will be shifted up by SERVOMIN on trellis
+  uint8_t servo1;
+  uint8_t servo2;
+  uint8_t servo3;
+  uint8_t servo4;
+  uint8_t servo5;
 } ledRow;
 
 
@@ -117,6 +123,47 @@ void refreshLeds() {
   }
 }
 
+int ensurePulselenInBounds(int pulselen){
+  // ensure that pulselen is within range
+  if (pulselen < SERVOMIN) {
+    pulselen = SERVOMIN;
+  }
+  if (pulselen > SERVOMAX) {
+    pulselen = SERVOMAX;
+  }
+  return pulselen;
+}
+
+void updateServos(LedRow ledRow){
+  if (ledRow.row == 0){
+    // Drive each servo one at a time using setPWM()
+    int pulselen;
+    pulselen = ledRow.servo0 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(0, 0, pulselen);
+
+    pulselen = ledRow.servo1 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(1, 0, pulselen);
+    
+    pulselen = ledRow.servo2 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(2, 0, pulselen);
+    
+    pulselen = ledRow.servo3 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(3, 0, pulselen);
+    
+    pulselen = ledRow.servo4 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(4, 0, pulselen);
+    
+    pulselen = ledRow.servo5 + SERVOMIN;
+    pulselen = ensurePulselenInBounds(pulselen);
+    pwm.setPWM(5, 0, pulselen);
+  }
+}
+
 void loop() {
   trellis.tick();
 
@@ -124,17 +171,14 @@ void loop() {
     keypadEvent e = trellis.read();
     int key = e.bit.KEY;
 
+    // send keypress info to arduino
     if (e.bit.EVENT == KEY_JUST_PRESSED) {
-      //update struct
       buttonPress.key = key;
       buttonPress.pressed = true;
       transmitButtonPress(buttonPress);
-
-      // Serial.print(key); Serial.println(" pressed\n");
       trellis.setPixelColor(key, 0xFFFFFF);
     }
     else if (e.bit.EVENT == KEY_JUST_RELEASED) {
-      // Serial.print(key); Serial.println(" released\n");
       trellis.setPixelColor(key, 0x0);
       buttonPress.key = key;
       buttonPress.pressed = false;
@@ -142,23 +186,14 @@ void loop() {
     }
   }
 
+  //request trellis led information from arduino
   Wire.requestFrom(FOLLOWER, sizeof(LedRow));   
   while (Wire.available()) { 
     Wire.readBytes((byte*) &ledRow, sizeof ledRow);
   }
   setRow(ledRow);
+  updateServos(ledRow);
   delay(1);
-
-  // Drive each servo one at a time using setPWM()
-  for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
-    pwm.setPWM(0, 0, pulselen);
-  }
-
-  delay(500);
-  for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
-    pwm.setPWM(0, 0, pulselen);
-  }
-  delay(500);
 
 }
 
