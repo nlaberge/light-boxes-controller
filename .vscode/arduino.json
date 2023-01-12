@@ -1,6 +1,6 @@
 {
     "configuration": "cache=on,speed=120,opt=small,maxqspi=50,usbstack=arduino,debug=off",
     "board": "adafruit:samd:adafruit_trellis_m4",
-    "port": "/dev/tty.usbmodem144101",
+    "port": "/dev/tty.usbmodem143101",
     "sketch": "code/LightBoxesController/LightBoxesController.ino"
 }

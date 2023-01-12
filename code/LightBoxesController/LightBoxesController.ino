@@ -13,14 +13,22 @@
 #include <Wire.h>
 #include <Adafruit_NeoTrellisM4.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_SleepyDog.h>
+#include "I2C_ClearBus.h"
 
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096), dictates how closed box is
 #define SERVOMAX  300 // This is the 'maximum' pulse length count (out of 4096), dictates how open box is
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-
 #define FOLLOWER 8
+
+// for MIDI
+#define MIDI_CHANNEL     0  // default channel # is 0
+// Set the value of first note, C is a good choice. Lowest C is 0.
+// 36 is a good default. 48 is a high range. Set to 24 for a bass machine.
+#define FIRST_MIDI_NOTE 36
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
@@ -50,16 +58,28 @@ struct LedRow
 } ledRow;
 
 
+
 void setup() {
+  I2C_ClearBus(); //clear bus
+  
   Wire.begin();        // join i2c bus (address optional for master)
+  Wire.setClock(10000); // set i2c clock to 500kHz (default is 100kHz)
   Serial.begin(9600);  // start serial for output
   trellis.begin();
   trellis.setBrightness(80);
 
+  // USB MIDI messages sent over the micro B USB port
+  Serial.println("Enabling MIDI on USB");
+  trellis.enableUSBMIDI(true);
+  trellis.setUSBMIDIchannel(MIDI_CHANNEL);
+
   pwm.begin(); // pwm for servos
   pwm.setOscillatorFrequency(27000000);
   pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
-  delay(10);
+
+  int countdownMS = Watchdog.enable(4000); //watchdog, 4s
+
+  delay(20);
 }
 
 void transmitButtonPress(ButtonPress bp){
@@ -177,12 +197,16 @@ void loop() {
       buttonPress.pressed = true;
       transmitButtonPress(buttonPress);
       trellis.setPixelColor(key, 0xFFFFFF);
+      trellis.noteOn(FIRST_MIDI_NOTE+key, 64); //midi
+
     }
     else if (e.bit.EVENT == KEY_JUST_RELEASED) {
       trellis.setPixelColor(key, 0x0);
       buttonPress.key = key;
       buttonPress.pressed = false;
       transmitButtonPress(buttonPress);
+      trellis.noteOff(FIRST_MIDI_NOTE+key, 64); //midi
+
     }
   }
 
@@ -193,8 +217,9 @@ void loop() {
   }
   setRow(ledRow);
   updateServos(ledRow);
-  delay(1);
-
+  trellis.sendMIDI(); // send any pending MIDI messages
+  Watchdog.reset(); // reset watchdog timer
+  delay(5);
 }
 
 unsigned long convertRGBtoHex(int r, int g, int b) {   
